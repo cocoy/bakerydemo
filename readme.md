@@ -20,6 +20,7 @@ Note we do _not_ recommend using this project to start your own site - the demo 
 - [Docker](#setup-with-docker)
 - [Virtualenv](#setup-with-virtualenv)
 - [Heroku](#deploy-to-heroku)
+- [Microk8s](#deploy-to-microk8s)
 
 If you're new to Python and/or Django, we suggest you run this project on a Virtual Machine using Vagrant or Docker (whichever you're most comfortable with). Both Vagrant and Docker will help resolve common software dependency issues. Developers more familiar with
 virtualenv and traditional Django app setup instructions should skip to [Setup with virtualenv](#setup-with-virtualenv).
@@ -148,6 +149,36 @@ a `DJANGO_SECRET_KEY` environment variable in Heroku using the web interace or t
     heroku config:set DJANGO_SECRET_KEY=changeme
 
 To learn more about Heroku, read [Deploying Python and Django Apps on Heroku](https://devcenter.heroku.com/articles/deploying-python).
+
+Deploy to MicroK8s
+------------------
+
+#### Dependencies
+* [kompose.io](http://kompose.io/) 
+* [microk8s.io](https://microk8s.io/)
+
+Kompose is a tool to help users who are familiar with docker-compose move to Kubernetes,
+while microk8s is a Kubernetes for workstations and appliances.
+
+Assuming you have run microk8s on you local machine, start creating the Docker image.
+
+```bash
+$ docker build . -t bakery_app2:local
+$ docker save bakery_app2 > bakeryapp.tar
+
+$ microk8s.ctr  -n k8s.io image import bakeryapp.tar
+$ microk8s.ctr -n k8s.io images list | grep bakery
+```
+
+See the ```deployment/app-deployment.yaml``` it is using the local image bakerydemo_app:latest
+Then start deploying the yaml files using ```microk8s.kubectl apply -f``` 
+
+Sample yaml files are inside directory ```deployment```. Or generate  it using the command below:
+
+```bash
+$ cd deployment
+$ kompose convert -f ../docker-compose.yml 
+```
 
 ### Storing Wagtail Media Files on AWS S3
 
